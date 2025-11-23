@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "QK9FGt14NEQ=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Saran.Kk\\source\\repos\\TcpChat\\Chat\\ChatApi\\ChatApi.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Saran.Kk\\.nuget\\packages\\system.io.pipelines\\10.0.0\\system.io.pipelines.10.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

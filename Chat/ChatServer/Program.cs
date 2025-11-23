@@ -1,4 +1,5 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using ChatApi;
 using System.Buffers;
 using System.IO.Pipelines;
 using System.Net.Sockets;
@@ -24,11 +25,11 @@ while(true)
 }
 
 async Task ProcessSocket(Socket socket)
-{	
-	var pipe = new Pipe();
-	var socketToPipelineTask = SocketToPipelineAsync(socket, pipe.Writer);
-	var pipelineToSocketTask = HandlePipeLineAsync(pipe.Reader);
-	await Task.WhenAll(socketToPipelineTask, pipelineToSocketTask);
+{
+	var pipelineSocket = new PipeLineSocket(socket);
+	var handlePipeLineTask = HandlePipeLineAsync(pipelineSocket.InputPipe);
+
+	await Task.WhenAll(pipelineSocket.MainTask, handlePipeLineTask);
 
 	async Task HandlePipeLineAsync(PipeReader pipeReader)
 	{
@@ -101,22 +102,4 @@ IReadOnlyList<String> ParseMessages(ReadOnlySequence<byte> buffer, PipeReader pi
 	}
 	return result;
 	
-}
-
-
-async Task SocketToPipelineAsync(Socket socket, PipeWriter pipeWriter)
-{
-	while (true)
-	{
-		var buffer = pipeWriter.GetMemory();
-		var bytesRead = await socket.ReceiveAsync(buffer, SocketFlags.None);
-		if(bytesRead == 0)
-		{	
-			pipeWriter.Complete();
-			break;	
-		}
-		pipeWriter.Advance(bytesRead);
-		await pipeWriter.FlushAsync();
-
-	}
 }

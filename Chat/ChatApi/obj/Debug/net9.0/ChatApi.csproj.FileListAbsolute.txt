@@ -1,0 +1,13 @@
+C:\Users\Saran.Kk\source\repos\TcpChat\Chat\ChatApi\bin\Debug\net9.0\ChatApi.deps.json
+C:\Users\Saran.Kk\source\repos\TcpChat\Chat\ChatApi\bin\Debug\net9.0\ChatApi.dll
+C:\Users\Saran.Kk\source\repos\TcpChat\Chat\ChatApi\bin\Debug\net9.0\ChatApi.pdb
+C:\Users\Saran.Kk\source\repos\TcpChat\Chat\ChatApi\obj\Debug\net9.0\ChatApi.csproj.AssemblyReference.cache
+C:\Users\Saran.Kk\source\repos\TcpChat\Chat\ChatApi\obj\Debug\net9.0\ChatApi.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Saran.Kk\source\repos\TcpChat\Chat\ChatApi\obj\Debug\net9.0\ChatApi.AssemblyInfoInputs.cache
+C:\Users\Saran.Kk\source\repos\TcpChat\Chat\ChatApi\obj\Debug\net9.0\ChatApi.AssemblyInfo.cs
+C:\Users\Saran.Kk\source\repos\TcpChat\Chat\ChatApi\obj\Debug\net9.0\ChatApi.csproj.CoreCompileInputs.cache
+C:\Users\Saran.Kk\source\repos\TcpChat\Chat\ChatApi\obj\Debug\net9.0\ChatApi.sourcelink.json
+C:\Users\Saran.Kk\source\repos\TcpChat\Chat\ChatApi\obj\Debug\net9.0\ChatApi.dll
+C:\Users\Saran.Kk\source\repos\TcpChat\Chat\ChatApi\obj\Debug\net9.0\refint\ChatApi.dll
+C:\Users\Saran.Kk\source\repos\TcpChat\Chat\ChatApi\obj\Debug\net9.0\ChatApi.pdb
+C:\Users\Saran.Kk\source\repos\TcpChat\Chat\ChatApi\obj\Debug\net9.0\ref\ChatApi.dll

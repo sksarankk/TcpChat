@@ -8,8 +8,9 @@
     ".NETCoreApp,Version=v9.0": {
       "ChatClient/1.0.0": {
         "dependencies": {
+          "ChatApi": "1.0.0",
           "Serilog": "4.3.0",
-          "System.IO.Pipelines": "9.0.10"
+          "System.IO.Pipelines": "10.0.0"
         },
         "runtime": {
           "ChatClient.dll": {}
@@ -23,11 +24,22 @@
           }
         }
       },
-      "System.IO.Pipelines/9.0.10": {
+      "System.IO.Pipelines/10.0.0": {
         "runtime": {
           "lib/net9.0/System.IO.Pipelines.dll": {
-            "assemblyVersion": "9.0.0.0",
-            "fileVersion": "9.0.1025.47515"
+            "assemblyVersion": "10.0.0.0",
+            "fileVersion": "10.0.25.52411"
+          }
+        }
+      },
+      "ChatApi/1.0.0": {
+        "dependencies": {
+          "System.IO.Pipelines": "10.0.0"
+        },
+        "runtime": {
+          "ChatApi.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
           }
         }
       }
@@ -46,12 +58,17 @@
       "path": "serilog/4.3.0",
       "hashPath": "serilog.4.3.0.nupkg.sha512"
     },
-    "System.IO.Pipelines/9.0.10": {
+    "System.IO.Pipelines/10.0.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-lwI0mhHcCxMtNSxB5ate9Gc9petWovRBUprtjz2yiIDDZPGBIaUiqNzQHJzjPuzTnvNbEMilpAXjDguKsU/2Fg==",
-      "path": "system.io.pipelines/9.0.10",
-      "hashPath": "system.io.pipelines.9.0.10.nupkg.sha512"
+      "sha512": "sha512-M1eb3nfXntaRJPrrMVM9EFS8I1bDTnt0uvUS6QP/SicZf/ZZjydMD5NiXxfmwW/uQwaMDP/yX2P+zQN1NBHChg==",
+      "path": "system.io.pipelines/10.0.0",
+      "hashPath": "system.io.pipelines.10.0.0.nupkg.sha512"
+    },
+    "ChatApi/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
     }
   }
 }

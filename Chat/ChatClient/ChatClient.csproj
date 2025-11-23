@@ -10,7 +10,11 @@
 
   <ItemGroup>
     <PackageReference Include="Serilog" Version="4.3.0" />
-    <PackageReference Include="System.IO.Pipelines" Version="9.0.10" />
+	  <PackageReference Include="System.IO.Pipelines" Version="10.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ChatApi\ChatApi.csproj" />
   </ItemGroup>
 
 </Project>
