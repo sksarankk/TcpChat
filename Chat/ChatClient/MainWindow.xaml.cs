@@ -33,17 +33,9 @@ public partial class MainWindow : Window
         Log.Information("Connected to server\n");
         StatusTextBox.Text += $"Connected {_clientSocket.RemoteEndPoint}\n";
 
-		var pipelineSocket = new PipeLineSocket(_clientSocket);
+		var chatConection = new ChatConnection(new PipeLineSocket(_clientSocket));
 
-		var message = "Hello server!";
-        var messageBytes = Encoding.UTF8.GetBytes(message);
-		var memory = pipelineSocket.OutputPipe.GetMemory(messageBytes.Length + 8);
-		BinaryPrimitives.TryWriteUInt32BigEndian(memory.Span, (uint) messageBytes.Length + 4);// message length including type
-		BinaryPrimitives.TryWriteUInt32BigEndian(memory.Span.Slice(4), 0); // message type
-
-		messageBytes.CopyTo(memory.Span.Slice(8));//actual message starts after 8 bytes for length and type
-		pipelineSocket.OutputPipe.Advance(messageBytes.Length + 8);
-		await pipelineSocket.OutputPipe.FlushAsync();
+        await chatConection.SendMessage(new ChatMessage("Hello, Server!"));
 
 	}
 
