@@ -4,8 +4,10 @@ using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.IO.Pipelines;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
 namespace ChatApi
@@ -14,37 +16,52 @@ namespace ChatApi
     {
         private readonly PipeLineSocket _pipeLineSocket;
 
-		private readonly uint _maxMessageSize;
+		private readonly Channel<IMessage> _inputChannel;
 
-        public ChatConnection(PipeLineSocket pipeLineSocket, uint MaxMessageSize = 65536)
+		private readonly Channel<IMessage> _outputChannel;
+
+
+        public ChatConnection(PipeLineSocket pipeLineSocket)
         {
             _pipeLineSocket = pipeLineSocket;
-			_maxMessageSize = MaxMessageSize;
-			MainTask = Task.WhenAll(pipeLineSocket.MainTask, HandlePipeLineAsync());
+			_inputChannel = Channel.CreateBounded<IMessage>(4);
+			_outputChannel = Channel.CreateBounded<IMessage>(4);
+			MainTask = Task.WhenAll(pipeLineSocket.MainTask, PipelineToChannel(), ChannelToPipelineAsync());
         }
 
         public Socket Socket => _pipeLineSocket.Socket;
 		public Task MainTask { get; }
 
+		public IPEndPoint RemoteEndPoint => _pipeLineSocket.RemoteEndPoint;
+
 		public async Task SendMessage(IMessage message)
 		{		
-			//TODO: currently not thread safe
-			if (message is ChatMessage chatMessage) {
-				var messageBytes = Encoding.UTF8.GetBytes(chatMessage.Text);
-				var memory = _pipeLineSocket.OutputPipe.GetMemory(messageBytes.Length + 8);
-				BinaryPrimitives.TryWriteUInt32BigEndian(memory.Span, (uint)messageBytes.Length + 4);// message length including type
-				BinaryPrimitives.TryWriteUInt32BigEndian(memory.Span.Slice(4), 0); // message type
-
-				messageBytes.CopyTo(memory.Span.Slice(8));//actual message starts after 8 bytes for length and type
-				_pipeLineSocket.OutputPipe.Advance(messageBytes.Length + 8);
-			}
-			else
-				throw new InvalidOperationException("unkonwn message type");
-
-			await _pipeLineSocket.OutputPipe.FlushAsync();
-
+			
+			await  _outputChannel.Writer.WriteAsync(message);
 		}
-		private async Task HandlePipeLineAsync()
+		public IAsyncEnumerable<IMessage> InputMessages => _inputChannel.Reader.ReadAllAsync();
+
+		private async Task ChannelToPipelineAsync()
+		{
+			await foreach (var message in _outputChannel.Reader.ReadAllAsync())
+			{
+				if (message is ChatMessage chatMessage)
+				{
+					var messageBytes = Encoding.UTF8.GetBytes(chatMessage.Text);
+					var memory = _pipeLineSocket.OutputPipe.GetMemory(messageBytes.Length + 8);
+					BinaryPrimitives.TryWriteUInt32BigEndian(memory.Span, (uint)messageBytes.Length + 4);// message length including type
+					BinaryPrimitives.TryWriteUInt32BigEndian(memory.Span.Slice(4), 0); // message type
+
+					messageBytes.CopyTo(memory.Span.Slice(8));//actual message starts after 8 bytes for length and type
+					_pipeLineSocket.OutputPipe.Advance(messageBytes.Length + 8);
+				}
+				else
+					throw new InvalidOperationException("unkonwn message type");
+				await _pipeLineSocket.OutputPipe.FlushAsync();
+			}
+			_pipeLineSocket.OutputPipe.Complete();
+		}
+		private async Task PipelineToChannel()
 		{
 			while (true)
 			{
@@ -52,10 +69,7 @@ namespace ChatApi
 
 				foreach (var message in ParseMessages(data.Buffer))
 				{
-					if (message is ChatMessage chatMessage)
-						Console.WriteLine($"Got message from {Socket.RemoteEndPoint} : {chatMessage.Text}");
-					else
-						Console.WriteLine($"got unknown message from {Socket.RemoteEndPoint}.");
+					await _inputChannel.Writer.WriteAsync(message);
 				}
 
 				if (data.IsCompleted)
@@ -83,9 +97,9 @@ namespace ChatApi
 				}
 				var lengthPrefix = (uint)signedLengthPrefix;
 				if (lengthPrefix == 0) break;
-				if (lengthPrefix > _maxMessageSize)
+				if (lengthPrefix > _pipeLineSocket.MaxMessageSize)
 				{
-					throw new InvalidOperationException($"Message size {lengthPrefix} exceeds maximum of {_maxMessageSize}");
+					throw new InvalidOperationException($"Message size {lengthPrefix} exceeds maximum of {_pipeLineSocket.MaxMessageSize}");
 				}
 				if (!sequenceReader.TryReadBigEndian(out int messageType))
 				{

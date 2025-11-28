@@ -1,4 +1,5 @@
 ﻿using System.IO.Pipelines;
+using System.Net;
 using System.Net.Sockets;
 using System.Xml.Linq;
 
@@ -15,11 +16,16 @@ namespace ChatApi
 		public PipeReader InputPipe => _inputPipe.Reader;
 
 		public Task MainTask { get;}
-		public PipeLineSocket(Socket connectedSocket)
+		public uint MaxMessageSize { get; }
+		
+		public IPEndPoint RemoteEndPoint { get; }
+		public PipeLineSocket(Socket connectedSocket, uint maxMessageSize = 65536)
 		{
 			Socket = connectedSocket;
+			RemoteEndPoint = (IPEndPoint) connectedSocket.RemoteEndPoint!;
+			MaxMessageSize = maxMessageSize;
 			_outpuPipe = new Pipe();
-			_inputPipe = new Pipe();
+			_inputPipe = new Pipe(new PipeOptions(pauseWriterThreshold: MaxMessageSize + 4));
 			MainTask = Task.WhenAll(
 				PipelineToSocketAsync(_outpuPipe.Reader, Socket),
 				SocketToPipelineAsync(Socket, _inputPipe.Writer)

@@ -26,6 +26,13 @@ while(true)
 
 async Task ProcessSocket(Socket socket)
 {
-	var pipelineSocket = new ChatConnection(new PipeLineSocket(socket));
-	await pipelineSocket.MainTask;
+	var chatConnection = new ChatConnection(new PipeLineSocket(socket));
+	_ = chatConnection.MainTask;
+	await foreach(var message in chatConnection.InputMessages)
+		{
+		if (message is ChatMessage chatMessage)
+			Console.WriteLine($"Got message from {chatConnection.RemoteEndPoint} : {chatMessage.Text}");
+		else
+			Console.WriteLine($"got unknown message from {chatConnection.RemoteEndPoint}.");
+	}
 }

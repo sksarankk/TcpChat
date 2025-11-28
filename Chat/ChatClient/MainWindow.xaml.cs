@@ -28,17 +28,26 @@ public partial class MainWindow : Window
 
 	private async void Button_Click(object sender, RoutedEventArgs e)
 	{
-		_clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        await _clientSocket.ConnectAsync("localhost", 5000);	
+		var clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        await clientSocket.ConnectAsync("localhost", 5000);	
         Log.Information("Connected to server\n");
-        StatusTextBox.Text += $"Connected {_clientSocket.RemoteEndPoint}\n";
+        Status.Text += $"Connected {clientSocket.RemoteEndPoint}\n";
 
-		var chatConection = new ChatConnection(new PipeLineSocket(_clientSocket));
-
-        await chatConection.SendMessage(new ChatMessage("Hello, Server!"));
+		_chatConnection = new ChatConnection(new PipeLineSocket(clientSocket));
 
 	}
 
     
-	private Socket _clientSocket;
+	private ChatConnection _chatConnection;
+
+	private async void Button_Click1(object sender, RoutedEventArgs e)
+	{
+		if (_chatConnection == null)
+		{
+			Log.Information("No Connection\n");
+
+		}
+
+		await _chatConnection.SendMessage(new ChatMessage(ChatMessageTextBox.Text));
+	}
 }
